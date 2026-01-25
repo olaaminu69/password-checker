@@ -9,6 +9,8 @@ import re
 import math
 import string
 from typing import Dict, List, Tuple
+from password_generator import PasswordGenerator 
+from breach_checker import BreachChecker
 
 class PasswordAnalyzer:
     """Analyzes password strength and security"""
@@ -273,6 +275,37 @@ class PasswordAnalyzer:
             suggestions.append("✓ Password meets security requirements!")
 
         return suggestions
+
+    def analyze_with_breach_check(self, password: str) -> Dict:
+        """
+        Analyze password including breach database check
+
+        Args:
+            password (str): Pssword to analyze
+
+        Returns:
+            Dict: Extended analysis results
+        """
+        # Get basic analysis
+        results = self.analyze(password)
+
+        # Check breach database
+        breach_checker = BreachChecker()
+        is_pwned, pwned_count = breach_checker.check_password(password)
+
+        results['breach_check'] = {
+            'is_pwned': is_pwned,
+            'pwned_count': pwned_count
+        }
+
+        # Update suggestions if breached
+        if is_pwned and pwned_count > 0:
+            results['suggestions'].insert(0,
+                f"🚨 CRITICAL: This password appears in {pwned_count:,} data breaches! Change immediately!")
+            results['score'] = max(0, results['score'] - 40)    # Heavy penalty
+            results['strength'] = self._determine_strength(results['score'])
+
+        return results
 
 def main():
     """Test the password analyzer"""
