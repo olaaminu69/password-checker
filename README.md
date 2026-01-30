@@ -8,14 +8,19 @@ A comprehensive password security tool with real-time strength analysis, breach 
 
 ## 📸 Screenshots
 
+### Main interface 
+*The homepage*
+![Password Checker](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-24-57.png)
+
 ### Password Strength Analysis
 *Real-time password strength checking with detailed feedback*
+![Strength Analysis (Weak password)](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-25-19.png)
+![Strength Analysis (Strong password)](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-26-19.png)
 
 ### Password Generator
 *Generate secure passwords and memorable passphrases*
-
-### Breach Detection
-*Check if passwords have been exposed in data breaches*
+![Password Generator](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-26-33.png)
+![Passphrase Generator](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-27-03.png)
 
 ---
 
