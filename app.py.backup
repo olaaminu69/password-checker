@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""
+Password Checker Web Application
+Author: Olaoluwa Aminu-Taiwo
+Description: Web interface for password analysis and generation
+"""
+
+from flask import Flask, render_template, request, jsonify
+from password_analyzer import PasswordAnalyzer
+from password_generator import PasswordGenerator
+from breach_checker import BreachChecker
+
+app = Flask(__name__)
+
+# Initialize tools
+analyzer = PasswordAnalyzer()
+generator = PasswordGenerator()
+breach_checker = BreachChecker()
+
+@app.route('/analyze', methods=['POST'])
+def password_analyzer():
+    """Analyze password strength"""
+    data = request.get_json()
+    password = data.get('password', '')
+
+    if not password:
+        return jsonify({'error': 'No password provided'}), 400
+
+        # Analyze password
+        results = analyzer.analyze(password)
+
+        # Optionally check breach database (can be slow)
+        check_breach = data.get('check_breach', False)
+        if check_breach:
+            is_pwned, count = breach_checker.check_password(password)
+            results['breach_check'] = {
+                'is_pwned': is_pwned,
+                'pwned_count': count
+            }
+
+            if is_pwned and count > 0:
+                results['suggestions'].insert(0,
+                    f"🚨 This password appears in {count:,} data breaches!")
+
+        return jsonify(results)
+
+@app.route('/generate', methods=['POST'])
+def generate_password():
+    """Generate new password"""
+    data = request.get_json()
+
+    # Get parameters
+    length = data.get('length', 16)
+    use_lowercase = data.get('use_lowercase', True)
+    use_uppercase = data.get('use_uppercase', True)
+    use_digits = data.get('use_digits', True)
+    use_symbols = data.get('use_symbols', True)
+    exclude_ambiguous = data.get('exclude_ambiguous', True)
+
+    # Generate password type
+    password_type = data.get('type', 'password')
+
+    if password_type == 'passphrase':
+        word_count = data.get('word_count', 4)
+        separator = data.get('separator', '-')
+        password = generator.generate_passphrase(
+            word_count=word_count,
+            separator=separator
+        )
+    else:
+        password = generator.generate(
+            length=length,
+            use_lowercase=use_lowercase,
+            use_uppercase=use_uppercase,
+            use_digits=use_digits,
+            use_symbols=use_symbols,
+            exclude_ambiguous=exclude_ambiguous
+        )
+
+    # Analyze generated password
+    analysis = analyzer.analyze(password)
+
+    return jsonify({
+        'password': password,
+        'analysis': analysis
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+    

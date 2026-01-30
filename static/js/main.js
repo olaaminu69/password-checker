@@ -1,0 +1,221 @@
+// DOM Elements
+const passwordInput = document.getElementById('password-input');
+const toggleVisibility = document.getElementById('toggle-visibility');
+const checkBreachCheckbox = document.getElementById('check-breach');
+const strengthMeter = document.getElementById('strength-meter');
+const strengthBar = document.getElementById('strength-bar');
+const strengthText = document.getElementById('strength-text');
+const results = document.getElementById('results');
+
+// Generator elements
+const lengthSlider = document.getElementById('length-slider');
+const lengthValue = document.getElementById('length-value');
+const wordCountSlider = document.getElementById('word-count-slider');
+const wordCountValue = document.getElementById('word-count-value');
+const generatePasswordBtn = document.getElementById('generate-password-btn');
+const generatePassphraseBtn = document.getElementById('generate-passphrase-btn');
+const generatedPasswordSection = document.getElementById('generated-password');
+const generatedPasswordText = document.getElementById('generated-password-text');
+const copyBtn = document.getElementById('copy-btn');
+
+// Tabs
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Password visibility toggle
+let passwordVisible = false;
+toggleVisibility.addEventListener('click', () => {
+    passwordVisible = !passwordVisible;
+    passwordInput.type = passwordVisible ? 'text' : 'password';
+    toggleVisibility.textContent = passwordVisible ? '🙈' : '👁️';
+});
+
+// Real-time password analysis
+let analysisTimeout;
+passwordInput.addEventListener('input', () => {
+    const password = passwordInput.value;
+    
+    if (!password) {
+        strengthMeter.classList.add('hidden');
+        results.classList.add('hidden');
+        return;
+    }
+    
+    // Debounce API calls
+    clearTimeout(analysisTimeout);
+    analysisTimeout = setTimeout(() => {
+        analyzePassword(password);
+    }, 300);
+});
+
+// Analyze password function
+async function analyzePassword(password) {
+    try {
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                password: password,
+                check_breach: checkBreachCheckbox.checked
+            })
+        });
+        
+        const data = await response.json();
+        displayResults(data);
+    } catch (error) {
+        console.error('Analysis error:', error);
+    }
+}
+
+// Display results
+function displayResults(data) {
+    // Show meter and results
+    strengthMeter.classList.remove('hidden');
+    results.classList.remove('hidden');
+    
+    // Update strength bar
+    const score = data.score;
+    const strength = data.strength.toLowerCase().replace(' ', '-');
+    
+    strengthBar.style.width = `${score}%`;
+    strengthBar.className = `strength-bar ${strength}`;
+    
+    strengthText.textContent = data.strength;
+    strengthText.className = `strength-text ${strength}`;
+    
+    // Update stats
+    document.getElementById('stat-length').textContent = data.length;
+    document.getElementById('stat-entropy').textContent = `${data.entropy} bits`;
+    document.getElementById('stat-crack-time').textContent = data.crack_time;
+    document.getElementById('stat-score').textContent = `${score}/100`;
+    
+    // Character types
+    const charTypesDiv = document.getElementById('character-types');
+    charTypesDiv.innerHTML = '';
+    
+    const charTypeLabels = {
+        lowercase: 'a-z',
+        uppercase: 'A-Z',
+        digits: '0-9',
+        symbols: '!@#$'
+    };
+    
+    for (const [type, present] of Object.entries(data.character_types)) {
+        const badge = document.createElement('div');
+        badge.className = `char-badge ${present ? 'active' : 'inactive'}`;
+        badge.textContent = charTypeLabels[type];
+        charTypesDiv.appendChild(badge);
+    }
+    
+    // Suggestions
+    const suggestionsDiv = document.getElementById('suggestions');
+    if (data.suggestions && data.suggestions.length > 0) {
+        suggestionsDiv.innerHTML = '<h3>Suggestions:</h3><ul>' +
+            data.suggestions.map(s => `<li>${s}</li>`).join('') +
+            '</ul>';
+    } else {
+        suggestionsDiv.innerHTML = '<h3>✓ Password meets all requirements!</h3>';
+    }
+}
+
+// Slider updates
+lengthSlider.addEventListener('input', (e) => {
+    lengthValue.textContent = e.target.value;
+});
+
+wordCountSlider.addEventListener('input', (e) => {
+    wordCountValue.textContent = e.target.value;
+});
+
+// Tab switching
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        
+        // Update buttons
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update content
+        tabContents.forEach(content => {
+            content.classList.remove('active');
+            if (content.id === tabId) {
+                content.classList.add('active');
+            }
+        });
+    });
+});
+
+// Generate password
+generatePasswordBtn.addEventListener('click', async () => {
+    const options = {
+        type: 'password',
+        length: parseInt(lengthSlider.value),
+        use_lowercase: document.getElementById('use-lowercase').checked,
+        use_uppercase: document.getElementById('use-uppercase').checked,
+        use_digits: document.getElementById('use-digits').checked,
+        use_symbols: document.getElementById('use-symbols').checked,
+        exclude_ambiguous: document.getElementById('exclude-ambiguous').checked
+    };
+    
+    await generateAndDisplay(options);
+});
+
+// Generate passphrase
+generatePassphraseBtn.addEventListener('click', async () => {
+    const options = {
+        type: 'passphrase',
+        word_count: parseInt(wordCountSlider.value),
+        separator: document.getElementById('separator').value
+    };
+    
+    await generateAndDisplay(options);
+});
+
+// Generate and display password/passphrase
+async function generateAndDisplay(options) {
+    try {
+        const response = await fetch('/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(options)
+        });
+        
+        const data = await response.json();
+        
+        // Display generated password
+        generatedPasswordText.textContent = data.password;
+        generatedPasswordSection.classList.remove('hidden');
+        
+        // Show mini analysis
+        const analysis = data.analysis;
+        document.getElementById('generated-analysis').innerHTML = `
+            <strong>${analysis.strength}</strong> (${analysis.score}/100) | 
+            ${analysis.entropy} bits entropy | 
+            Crack time: ${analysis.crack_time}
+        `;
+        
+    } catch (error) {
+        console.error('Generation error:', error);
+    }
+}
+
+// Copy to clipboard
+copyBtn.addEventListener('click', () => {
+    const password = generatedPasswordText.textContent;
+    navigator.clipboard.writeText(password).then(() => {
+        // Visual feedback
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✓';
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+        }, 2000);
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy to clipboard');
+    });
+});

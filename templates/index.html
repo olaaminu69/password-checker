@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UFT-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Checker | Security Tool</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Password Strength Checker</h1>
+            <p class="subtitle">Analyze and generate secure passwords</p>
+        </header>
+
+        <!-- Password Analyzer Section -->
+         <section class="card">
+            <h2>Check Password Strength</h2>
+
+            <div class="input-group">
+                <input
+                    type="password"
+                    id="password-input"
+                    placeholder="Enter password to analyze...."
+                    autocomplete="off"
+                >
+                <button id="toggle-visibility" class="btn-icon" title="Show/Hide password">
+                    👁️
+                </button>
+            </div>
+
+            <div class="options">
+                <label class="checkbox">
+                    <input type="checkbox" id="check-breach">
+                    <span>Check against breach database (slower)</span>
+                </label>
+            </div>
+
+            <!-- Strength Meter -->
+             <div id="strength-meter" class="strength-meter hidden">
+                <div class="strength-bar-container">
+                    <div id="strength-bar" class="strength-bar"></div>
+                </div>
+                <div id="strength-text" class="strength-text"></div>
+             </div>
+
+             <!-- Results -->
+              <div id="results" class="results hidden">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Length</div>
+                        <div id="stat-length" class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Entropy</div>
+                        <div id="stat-entropy" class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Crack Time</div>
+                        <div id="stat-crack-time" class="stat-value">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Score</div>
+                        <div id="stat-score" class="stat-value">-</div>
+                    </div>
+                </div>
+
+                <div id="character-types" class="character-types"></div>
+
+                <div id="suggestions" class="suggestions"></div>
+              </div>
+         </section>
+
+         <!-- Password Generator Section -->
+          <section class="card">
+            <h2>Generate Secure Password</h2>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="password-tab">Password</button>
+                <button class="tab-btn" data-tab="passphrase-tab">Passphrase</button>
+            </div>
+
+            <!-- Password Generator Tab -->
+             <div id="password-tab" class="tab-content active">
+                <div class="control-group">
+                    <label>
+                        Length: <span id="length-value">16</span>
+                    </label>
+                    <input
+                        type="range"
+                        id="length-slider"
+                        min="8"
+                        max="32"
+                        value="16"
+                        class="slider"
+                    >
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="checkbox">
+                        <input type="checkbox" id="use-lowercase" checked>
+                        <span>Lowercase (a-z)</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="use-uppercase" checked>
+                        <span>Uppercase (A-Z)</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="use-digits" checked>
+                        <span>Numbers (0-9)</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="use-symbols" checked>
+                        <span>Symbols (!@#$)</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="exclude-ambiguous" checked>
+                        <span>Exclude ambiguous (il1Lo0O)</span>
+                    </label>
+                </div>
+
+                <button id="generate-password-btn" class="btn btn-primary">
+                    Generate Password
+                </button>
+             </div>
+
+             <!-- Passphrase Generator Tab -->
+              <div id="passphrase-tab" class="tab-content">
+                <div class="control-group">
+                    <label>
+                        Number of Words: <span id="word-count-value">4</span>
+                    </label>
+                    <input
+                        type="range"
+                        id="word-count-slider"
+                        min="3"
+                        max="8"
+                        value="4"
+                        class="slider"
+                    >
+                </div>
+
+                <div class="control-group">
+                    <label for="separator">Separator:</label>
+                    <select id="separator" class="select">
+                        <option value="-">Dash (-)</option>
+                        <option value="_">Underscore (_)</option>
+                        <option value=".">Period (.)</option>
+                        <option value=" ">Space</option>
+                    </select>
+                </div>
+
+                <button id="generate-passphrase-btn" class="btn btn-primary">
+                    Generate Passphrase
+                </button>
+              </div>
+
+              <!-- Generated Password Display -->
+               <div id="generated-password" class="generated-password hidden">
+                <div class="password-display">
+                    <code id="generated-password-text"></code>
+                    <button id="copy-btn" class="btn-icon" title="Copy to clipboard">
+                        📋
+                    </button>
+                </div>
+
+                <div id="generated-analysis" class="mini-analysis"></div>
+               </div>
+          </section>
+
+          <footer>
+            <p>Built by Olaoluwa Aminu-Taiwo
+                <a href="https://github.com/olaaminu69/password-checker" target="_blank">View on Github</a>
+            </p>
+          </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
