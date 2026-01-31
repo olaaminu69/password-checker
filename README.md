@@ -22,6 +22,15 @@ A comprehensive password security tool with real-time strength analysis, breach 
 ![Password Generator](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-26-33.png)
 ![Passphrase Generator](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-30%2014-27-03.png)
 
+### Command Line Interface
+![CLI Analysis](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-31%2010-16-06.png)
+![CLI Analysis](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-31%2010-19-10.png)
+*Batch password analysis with color-coded output*
+
+![CLI Generation](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-31%2010-21-46.png)
+![CLI Generation](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-31%2010-22-41.png)
+![CLI Generation](https://github.com/olaaminu69/password-checker/blob/main/screenshots/Screenshot%20From%202026-01-31%2010-23-35.png)
+*Generate multiple passwords from terminal*
 ---
 
 ## ✨ Features
